@@ -1,63 +1,37 @@
 package com.example.fincortex
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
-import com.example.fincortex.network.ApiResponse
-import com.example.fincortex.network.LoginRequest
-import com.example.fincortex.network.RetrofitClient
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.fincortex.ui.ExpenseScreen
+import com.example.fincortex.ui.SplashScreen
 import com.example.fincortex.ui.theme.FinCortexTheme
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             FinCortexTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
-                    Text(text = "FinCortex Backend Connected")
 
-                    // 🔥 SAFE: called once, no memory loop
-                    LaunchedEffect(Unit) {
-                        callLoginApi()
+                var showSplash by remember { mutableStateOf(true) }
+
+                if (showSplash) {
+                    SplashScreen {
+                        showSplash = false
                     }
+                } else {
+                    ExpenseScreen(
+                        viewModel = viewModel(),
+                        userId = "test_user_001"
+                    )
                 }
             }
         }
-    }
-
-    private fun callLoginApi() {
-        val apiService = RetrofitClient.api
-
-        val request = LoginRequest(
-            email = "test@gmail.com",
-            password = "1234"
-        )
-
-        apiService.login(request)
-            .enqueue(object : Callback<ApiResponse> {
-                override fun onResponse(
-                    call: Call<ApiResponse>,
-                    response: Response<ApiResponse>
-                ) {
-                    Log.d("API", "SUCCESS: ${response.body()?.message}")
-                }
-
-                override fun onFailure(
-                    call: Call<ApiResponse>,
-                    t: Throwable
-                ) {
-                    Log.e("API", "ERROR: ${t.message}")
-                }
-            })
     }
 }

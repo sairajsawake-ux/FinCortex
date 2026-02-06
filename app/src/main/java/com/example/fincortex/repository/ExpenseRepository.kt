@@ -1,41 +1,28 @@
 package com.example.fincortex.repository
 
 import com.example.fincortex.model.Expense
-import com.google.firebase.firestore.FirebaseFirestore
 
 class ExpenseRepository {
 
-    private val db = FirebaseFirestore.getInstance()
-    private val expensesCollection = db.collection("expenses")
+    private val expenses = mutableListOf<Expense>()
+    private var nextId = 1
 
-    fun addExpense(expense: Expense, onResult: (Boolean) -> Unit) {
-        val docId = expensesCollection.document().id
-        expensesCollection
-            .document(docId)
-            .set(expense.copy(id = docId))
-            .addOnSuccessListener {
-                onResult(true)
-            }
-            .addOnFailureListener {
-                onResult(false)
-            }
+    fun addExpense(name: String, amount: Double) {
+        if (name.isBlank()) return
+
+        expenses.add(
+            Expense(
+                id = nextId,
+                name = name,
+                amount = amount
+            )
+        )
+        nextId++
     }
 
-    fun getExpensesByUser(
-        userId: String,
-        onResult: (List<Expense>) -> Unit
-    ) {
-        expensesCollection
-            .whereEqualTo("userId", userId)
-            .get()
-            .addOnSuccessListener { result ->
-                val expenses = result.documents.mapNotNull {
-                    it.toObject(Expense::class.java)
-                }
-                onResult(expenses)
-            }
-            .addOnFailureListener {
-                onResult(emptyList())
-            }
+    fun deleteExpense(id: Int) {
+        expenses.removeAll { it.id == id }
     }
+
+    fun getAllExpenses(): List<Expense> = expenses
 }

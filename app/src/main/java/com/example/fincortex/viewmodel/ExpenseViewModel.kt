@@ -1,28 +1,26 @@
 package com.example.fincortex.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.fincortex.model.Expense
 import com.example.fincortex.repository.ExpenseRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class ExpenseViewModel : ViewModel() {
 
     private val repository = ExpenseRepository()
 
-    var expenses by mutableStateOf<List<Expense>>(emptyList())
-        private set
+    private val _expenses = MutableStateFlow<List<Expense>>(emptyList())
+    val expenses: StateFlow<List<Expense>> = _expenses
 
-    fun loadExpenses(userId: String) {
-        repository.getExpensesByUser(userId) {
-            expenses = it
-        }
+    fun addExpense(name: String, amountText: String) {
+        val amount = amountText.toDoubleOrNull() ?: return
+        repository.addExpense(name, amount)
+        _expenses.value = repository.getAllExpenses()
     }
 
-    fun addExpense(expense: Expense, onResult: (Boolean) -> Unit) {
-        repository.addExpense(expense) { success ->
-            onResult(success)
-        }
+    fun deleteExpense(id: Int) {
+        repository.deleteExpense(id)
+        _expenses.value = repository.getAllExpenses()
     }
 }

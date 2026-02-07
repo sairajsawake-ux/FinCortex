@@ -13,11 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.example.fincortex.R
-import com.example.fincortex.ui.theme.DarkBackground
-import com.example.fincortex.ui.theme.DarkPrimary
 import kotlinx.coroutines.delay
 
 @Composable
@@ -41,7 +39,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(DarkBackground, DarkPrimary))),
+            .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
         Image(

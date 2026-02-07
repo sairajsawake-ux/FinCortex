@@ -4,8 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.fincortex.ui.activityhub.ActivityHubScreen
+import com.example.fincortex.ui.advisor.AdvisorScreen
+import com.example.fincortex.ui.growth.GrowthScreen
 import com.example.fincortex.ui.home.HomeScreen
 import com.example.fincortex.ui.login.LoginScreen
+import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
 
 @Composable
@@ -38,7 +42,29 @@ fun NavGraph() {
         }
 
         composable(Routes.HOME) {
-            HomeScreen()
+            HomeScreen(navController = navController)
+        }
+
+        composable(Routes.GROWTH) {
+            GrowthScreen()
+        }
+
+        composable(Routes.ADVISOR) {
+            AdvisorScreen()
+        }
+
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                onLogout = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.ACTIVITY_HUB) {
+            ActivityHubScreen(navController = navController)
         }
     }
 }

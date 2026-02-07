@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Warning
@@ -50,14 +51,16 @@ fun ActivityHubScreen(navController: NavController) {
     val notifications = listOf(
         NotificationItemData("Interest Credit", "Quarterly interest credited to ICICI", "₹1,240.00", "1M AGO", Icons.Default.MonetizationOn),
         NotificationItemData("FinCortex AI", "Reliance Ind. dropped by 2.1%. Review stop-loss levels.", null, "1M AGO", Icons.Default.Warning),
-        NotificationItemData("Uber Rides", "debited from HDFC Bank", "₹450.00", "1M AGO", Icons.Default.PhoneAndroid)
+        NotificationItemData("Uber Rides", "debited from HDFC Bank", "₹450.00", "1M AGO", Icons.Default.PhoneAndroid),
+        NotificationItemData("Shell Gas Station", "debited from ICICI Bank", "₹2,500.00", "2M AGO", Icons.Default.LocalGasStation),
+        NotificationItemData("FinCortex AI", "Bitcoin is up by 5%. Consider your position.", null, "2M AGO", Icons.Default.Warning)
     )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(DarkBackground)
-            .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp) // Added extra padding
+            .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
             .padding(horizontal = 16.dp)
     ) {
         Row(
@@ -73,7 +76,7 @@ fun ActivityHubScreen(navController: NavController) {
                 Text("CLEAR ALL", color = DarkAccent)
             }
         }
-        Text(text = "20 RECENT NOTIFICATIONS", color = DarkText.copy(alpha = 0.7f), fontSize = 12.sp, modifier = Modifier.padding(start = 16.dp))
+        Text(text = "${notifications.size} RECENT NOTIFICATIONS", color = DarkText.copy(alpha = 0.7f), fontSize = 12.sp, modifier = Modifier.padding(start = 16.dp))
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(notifications) { notification ->

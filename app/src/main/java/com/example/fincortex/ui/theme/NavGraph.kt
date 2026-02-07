@@ -46,7 +46,7 @@ fun NavGraph() {
         }
 
         composable(Routes.GROWTH) {
-            GrowthScreen()
+            GrowthScreen(navController = navController)
         }
 
         composable(Routes.ADVISOR) {
@@ -55,6 +55,7 @@ fun NavGraph() {
 
         composable(Routes.PROFILE) {
             ProfileScreen(
+                navController = navController,
                 onLogout = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME) { inclusive = true }

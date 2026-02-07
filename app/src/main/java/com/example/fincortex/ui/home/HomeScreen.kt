@@ -1,5 +1,10 @@
 package com.example.fincortex.ui.home
 
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +34,7 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Savings
@@ -39,12 +45,17 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,8 +82,36 @@ data class Transaction(val name: String, val date: String, val amount: String, v
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    var spokenText by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    val speechRecognizerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val results = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                spokenText = results?.get(0) ?: ""
+
+                // Analyze spoken text and navigate
+                when {
+                    spokenText.contains("profile", ignoreCase = true) -> navController.navigate(Routes.PROFILE)
+                    spokenText.contains("growth", ignoreCase = true) -> navController.navigate(Routes.GROWTH)
+                    spokenText.contains("advisor", ignoreCase = true) -> navController.navigate(Routes.ADVISOR)
+                    // Add more commands as needed
+                }
+            }
+        }
+    )
+
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = { BottomNavigationBar(navController) {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
+            }
+            speechRecognizerLauncher.launch(intent)
+        } }
     ) {
         Column(
             modifier = Modifier
@@ -126,7 +166,7 @@ fun HomeScreen(navController: NavController) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(navController: NavController, onMicClick: () -> Unit) {
     BottomAppBar(
         containerColor = DarkPrimary,
         contentColor = DarkText
@@ -139,11 +179,13 @@ fun BottomNavigationBar(navController: NavController) {
             BottomNavItem(icon = Icons.Default.Home, label = "Home", onClick = { navController.navigate(Routes.HOME) })
             BottomNavItem(icon = Icons.Default.TrendingUp, label = "Growth", onClick = { navController.navigate(Routes.GROWTH) })
             FloatingActionButton(
-                onClick = { /* TODO */ },
+                onClick = onMicClick,
                 containerColor = DarkAccent,
-                contentColor = DarkPrimary
+                contentColor = DarkPrimary,
+                modifier = Modifier.size(64.dp),
+                elevation = FloatingActionButtonDefaults.elevation(8.dp)
             ) {
-                Icon(Icons.Default.AddCircle, contentDescription = "Add Transaction")
+                Icon(Icons.Default.Mic, contentDescription = "Microphone")
             }
             BottomNavItem(icon = Icons.Default.Star, label = "Advisor", onClick = { navController.navigate(Routes.ADVISOR) })
             BottomNavItem(icon = Icons.Default.Person, label = "Profile", onClick = { navController.navigate(Routes.PROFILE) })

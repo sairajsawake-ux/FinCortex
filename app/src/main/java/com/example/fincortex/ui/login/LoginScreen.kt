@@ -1,5 +1,6 @@
 package com.example.fincortex.ui.login
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -49,13 +51,43 @@ import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
+fun LoginScreen(onLoginSuccess: (String) -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    fun loginUser() {
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    errorMessage = ""
+                    val user = task.result?.user
+                    user?.getIdToken(true)?.addOnCompleteListener { tokenTask ->
+                        if (tokenTask.isSuccessful) {
+                            val token = tokenTask.result?.token
+                            if (token != null) {
+                                val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                                with(sharedPreferences.edit()) {
+                                    putString("auth_token", token)
+                                    apply()
+                                }
+                                onLoginSuccess(token)
+                            }
+                        } else {
+                            errorMessage = tokenTask.exception?.message ?: "Failed to get token"
+                        }
+                    }
+                } else {
+                    errorMessage = task.exception?.message ?: "Authentication failed"
+                }
+            }
+    }
 
     Column(
         modifier = Modifier
@@ -84,6 +116,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
+
+        if (errorMessage.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = errorMessage, color = androidx.compose.ui.graphics.Color.Red, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+        }
 
         Spacer(modifier = Modifier.height(48.dp))
 
@@ -136,7 +173,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         Spacer(modifier = Modifier.height(48.dp))
 
         Button(
-            onClick = onLoginSuccess,
+            onClick = { loginUser() },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = DarkAccent)
         ) {

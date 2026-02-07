@@ -15,15 +15,43 @@ Content-Type: application/json
   "email": "test@gmail.com",
   "password": "1234"
 }
+
 ### Add expense
 POST http://localhost:5000/expense/add
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6...
 
 {
-  "title": "Lunch",
-  "amount": 150,
+  "amount": 2000,
   "category": "Food"
 }
 
+
+
 ### Get all expenses
 GET http://localhost:5000/expense/all
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6...
+
+
+### AI Chat
+POST http://localhost:5000/api/chat
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6...
+
+{
+  "userId": "123",
+  "question": "tell me about my spending"
+}
+
+### Add Expense
+POST http://localhost:5000/expense/add
+Content-Type: application/json
+Authorization: Bearer <fincortex-ce2c1>
+
+{
+  "amount": 2000,
+  "category": "Food"
+}
+
+
+

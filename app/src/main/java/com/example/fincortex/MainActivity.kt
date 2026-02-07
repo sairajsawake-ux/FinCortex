@@ -7,10 +7,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.fincortex.ui.ExpenseScreen
-import com.example.fincortex.ui.SplashScreen
+import com.example.fincortex.ui.splash.SplashScreen
 import com.example.fincortex.ui.theme.FinCortexTheme
+import com.example.fincortex.ui.theme.NavGraph
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,18 +17,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FinCortexTheme {
-
                 var showSplash by remember { mutableStateOf(true) }
 
                 if (showSplash) {
-                    SplashScreen {
-                        showSplash = false
-                    }
+                    SplashScreen { showSplash = false }
                 } else {
-                    ExpenseScreen(
-                        viewModel = viewModel(),
-                        userId = "test_user_001"
-                    )
+                    NavGraph()
                 }
             }
         }

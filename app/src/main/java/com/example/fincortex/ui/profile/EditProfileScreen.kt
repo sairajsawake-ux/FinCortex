@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -57,6 +58,29 @@ fun EditProfileScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Personal Details Option
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .clickable { navController.navigate(Routes.PERSONAL_DETAILS) },
+            colors = CardDefaults.cardColors(containerColor = DarkPrimary),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(imageVector = Icons.Default.Person, contentDescription = null, tint = DarkAccent)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = "Personal Details", color = DarkText, modifier = Modifier.weight(1f))
+                Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = DarkText.copy(alpha = 0.7f))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Change Email / Phone Number Option
         Card(
             modifier = Modifier
                 .fillMaxWidth()

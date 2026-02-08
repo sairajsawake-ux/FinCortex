@@ -1,5 +1,3 @@
-package com.yourpackage.network
+package com.example.fincortex.model
 
-data class ExpenseRequest(
-    val expenses: List<ExpenseDto>
-)
+data class ExpenseRequest(val amount: Int, val category: String)

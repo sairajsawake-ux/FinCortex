@@ -52,7 +52,7 @@ fun NavGraph() {
         }
 
         composable(Routes.ADVISOR) {
-            AdvisorScreen()
+            AdvisorScreen(navController = navController)
         }
 
         composable(Routes.PROFILE) {

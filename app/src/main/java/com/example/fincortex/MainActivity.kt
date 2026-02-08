@@ -1,9 +1,6 @@
 package com.example.fincortex
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
@@ -12,15 +9,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
+import com.example.fincortex.ui.navigation.NavGraph
+import com.example.fincortex.ui.navigation.Routes
 import com.example.fincortex.ui.splash.SplashScreen
 import com.example.fincortex.ui.theme.FinCortexTheme
-import com.example.fincortex.ui.theme.NavGraph
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        createNotificationChannel()
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        
+        // Always start with security check
+        val startDestination = Routes.SECURITY
+
+        if (currentUser != null) {
+            // Fetch and store token if user is logged in
+            currentUser.getIdToken(true).addOnCompleteListener { tokenTask ->
+                if (tokenTask.isSuccessful) {
+                    val token = tokenTask.result?.token
+                    if (token != null) {
+                        val sharedPreferences = getSharedPreferences("auth", Context.MODE_PRIVATE)
+                        with(sharedPreferences.edit()) {
+                            putString("auth_token", token)
+                            apply()
+                        }
+                    }
+                }
+            }
+        }
+
         setContent {
             FinCortexTheme {
                 var showSplash by remember { mutableStateOf(true) }
@@ -28,23 +49,9 @@ class MainActivity : FragmentActivity() {
                 if (showSplash) {
                     SplashScreen { showSplash = false }
                 } else {
-                    NavGraph()
+                    NavGraph(startDestination = startDestination)
                 }
             }
-        }
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "FinCortex Channel"
-            val descriptionText = "Channel for FinCortex notifications"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(NotificationService.CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
         }
     }
 }

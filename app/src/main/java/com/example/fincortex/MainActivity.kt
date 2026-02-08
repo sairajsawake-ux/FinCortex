@@ -1,5 +1,6 @@
 package com.example.fincortex
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,13 +10,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import com.example.fincortex.ui.navigation.NavGraph
+import com.example.fincortex.ui.navigation.Routes
 import com.example.fincortex.ui.splash.SplashScreen
 import com.example.fincortex.ui.theme.FinCortexTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        val startDestination = if (currentUser != null) {
+            // Fetch and store token if user is logged in
+            currentUser.getIdToken(true).addOnCompleteListener { tokenTask ->
+                if (tokenTask.isSuccessful) {
+                    val token = tokenTask.result?.token
+                    if (token != null) {
+                        val sharedPreferences = getSharedPreferences("auth", Context.MODE_PRIVATE)
+                        with(sharedPreferences.edit()) {
+                            putString("auth_token", token)
+                            apply()
+                        }
+                    }
+                }
+            }
+            Routes.HOME
+        } else {
+            Routes.SECURITY
+        }
+
         setContent {
             FinCortexTheme {
                 var showSplash by remember { mutableStateOf(true) }
@@ -23,7 +48,7 @@ class MainActivity : ComponentActivity() {
                 if (showSplash) {
                     SplashScreen { showSplash = false }
                 } else {
-                    NavGraph()
+                    NavGraph(startDestination = startDestination)
                 }
             }
         }

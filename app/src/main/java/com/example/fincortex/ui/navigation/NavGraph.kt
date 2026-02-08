@@ -13,12 +13,12 @@ import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
 
 @Composable
-fun NavGraph() {
+fun NavGraph(startDestination: String = Routes.SECURITY) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Routes.SECURITY
+        startDestination = startDestination
     ) {
 
         composable(Routes.SECURITY) {

@@ -11,6 +11,7 @@ import com.example.fincortex.ui.home.HomeScreen
 import com.example.fincortex.ui.login.LoginScreen
 import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
+import com.example.fincortex.ui.settings.ChangeDetailsScreen
 import com.example.fincortex.ui.settings.SettingsScreen
 import com.google.firebase.auth.FirebaseAuth
 
@@ -71,6 +72,10 @@ fun NavGraph(startDestination: String) {
                     popUpTo(Routes.HOME) { inclusive = true }
                 }
             })
+        }
+
+        composable(Routes.CHANGE_DETAILS) {
+            ChangeDetailsScreen(navController = navController)
         }
     }
 }

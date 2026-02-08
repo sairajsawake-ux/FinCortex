@@ -10,4 +10,5 @@ object Routes {
     const val ACTIVITY_HUB = "activity_hub"
     const val APP_SETTINGS = "app_settings"
     const val EXPENSE = "expense"
+    const val CHANGE_DETAILS = "change_details"
 }

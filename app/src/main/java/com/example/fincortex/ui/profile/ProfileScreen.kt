@@ -81,7 +81,7 @@ fun ProfileScreen(navController: NavController, onLogout: () -> Unit) {
 
             ProfileOption(icon = Icons.Default.Edit, text = "Edit Profile", onClick = { /* TODO */ })
             ProfileOption(icon = Icons.Default.Settings, text = "Settings", onClick = { navController.navigate(Routes.APP_SETTINGS) })
-            ProfileOption(icon = Icons.Default.Notifications, text = "Notifications", onClick = { /* TODO */ })
+            ProfileOption(icon = Icons.Default.Notifications, text = "Notifications", onClick = { navController.navigate(Routes.ACTIVITY_HUB) })
             ProfileOption(icon = Icons.Default.ExitToApp, text = "Logout", onClick = {
                 FirebaseAuth.getInstance().signOut()
                 val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)

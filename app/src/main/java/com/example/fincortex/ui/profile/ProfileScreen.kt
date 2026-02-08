@@ -1,5 +1,6 @@
 package com.example.fincortex.ui.profile
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,9 +48,11 @@ import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ProfileScreen(navController: NavController, onLogout: () -> Unit) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,7 +83,7 @@ fun ProfileScreen(navController: NavController, onLogout: () -> Unit) {
             ProfileOption(icon = Icons.Default.Notifications, text = "Notifications", onClick = { /* TODO */ })
             ProfileOption(icon = Icons.Default.ExitToApp, text = "Logout", onClick = {
                 FirebaseAuth.getInstance().signOut()
-                val sharedPreferences = LocalContext.current.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
                 with(sharedPreferences.edit()) {
                     remove("auth_token")
                     apply()

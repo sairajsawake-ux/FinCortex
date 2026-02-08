@@ -58,14 +58,7 @@ fun NavGraph(startDestination: String) {
         }
 
         composable(Routes.PROFILE) {
-            ProfileScreen(
-                navController = navController,
-                onLogout = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.HOME) { inclusive = true }
-                    }
-                }
-            )
+            ProfileScreen(navController = navController)
         }
 
         composable(Routes.ACTIVITY_HUB) {
@@ -73,7 +66,11 @@ fun NavGraph(startDestination: String) {
         }
 
         composable(Routes.APP_SETTINGS) {
-            SettingsScreen(navController = navController)
+            SettingsScreen(navController = navController, onLogout = {
+                navController.navigate(Routes.LOGIN) {
+                    popUpTo(Routes.HOME) { inclusive = true }
+                }
+            })
         }
     }
 }

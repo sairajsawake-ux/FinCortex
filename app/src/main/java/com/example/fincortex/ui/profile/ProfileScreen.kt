@@ -1,10 +1,8 @@
 package com.example.fincortex.ui.profile
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -35,25 +32,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fincortex.R
+import com.example.fincortex.ui.navigation.Routes
 import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
-import com.example.fincortex.ui.navigation.Routes
-import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun ProfileScreen(navController: NavController, onLogout: () -> Unit) {
-    val context = LocalContext.current
+fun ProfileScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +59,7 @@ fun ProfileScreen(navController: NavController, onLogout: () -> Unit) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = DarkText)
             }
         }
-        Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()){
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
             Image(
                 painter = painterResource(id = R.drawable.fincortex_logo),
                 contentDescription = "Profile Picture",
@@ -82,15 +75,6 @@ fun ProfileScreen(navController: NavController, onLogout: () -> Unit) {
             ProfileOption(icon = Icons.Default.Edit, text = "Edit Profile", onClick = { /* TODO */ })
             ProfileOption(icon = Icons.Default.Settings, text = "Settings", onClick = { navController.navigate(Routes.APP_SETTINGS) })
             ProfileOption(icon = Icons.Default.Notifications, text = "Notifications", onClick = { navController.navigate(Routes.ACTIVITY_HUB) })
-            ProfileOption(icon = Icons.Default.ExitToApp, text = "Logout", onClick = {
-                FirebaseAuth.getInstance().signOut()
-                val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-                with(sharedPreferences.edit()) {
-                    remove("auth_token")
-                    apply()
-                }
-                onLogout()
-            })
         }
     }
 }

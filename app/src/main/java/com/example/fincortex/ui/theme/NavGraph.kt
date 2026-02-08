@@ -75,7 +75,7 @@ fun NavGraph() {
             ActivityHubScreen(navController = navController)
         }
 
-        composable(Routes.SETTINGS) {
+        composable(Routes.APP_SETTINGS) {
             SettingsScreen(navController = navController)
         }
     }

@@ -48,6 +48,7 @@ import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
+import com.example.fincortex.ui.navigation.Routes
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -79,7 +80,7 @@ fun ProfileScreen(navController: NavController, onLogout: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
 
             ProfileOption(icon = Icons.Default.Edit, text = "Edit Profile", onClick = { /* TODO */ })
-            ProfileOption(icon = Icons.Default.Settings, text = "Settings", onClick = { /* TODO */ })
+            ProfileOption(icon = Icons.Default.Settings, text = "Settings", onClick = { navController.navigate(Routes.APP_SETTINGS) })
             ProfileOption(icon = Icons.Default.Notifications, text = "Notifications", onClick = { /* TODO */ })
             ProfileOption(icon = Icons.Default.ExitToApp, text = "Logout", onClick = {
                 FirebaseAuth.getInstance().signOut()

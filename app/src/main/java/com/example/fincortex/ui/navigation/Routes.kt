@@ -8,4 +8,6 @@ object Routes {
     const val ADVISOR = "advisor"
     const val PROFILE = "profile"
     const val ACTIVITY_HUB = "activity_hub"
+    const val APP_SETTINGS = "app_settings"
+    const val EXPENSE = "expense"
 }

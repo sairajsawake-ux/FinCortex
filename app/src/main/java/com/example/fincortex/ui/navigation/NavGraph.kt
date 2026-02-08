@@ -11,6 +11,7 @@ import com.example.fincortex.ui.home.HomeScreen
 import com.example.fincortex.ui.login.LoginScreen
 import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
+import com.example.fincortex.ui.settings.SettingsScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -69,6 +70,10 @@ fun NavGraph(startDestination: String) {
 
         composable(Routes.ACTIVITY_HUB) {
             ActivityHubScreen(navController = navController)
+        }
+
+        composable(Routes.APP_SETTINGS) {
+            SettingsScreen(navController = navController)
         }
     }
 }

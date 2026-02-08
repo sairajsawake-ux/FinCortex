@@ -1,9 +1,5 @@
 package com.example.fincortex.ui.settings
 
-import android.Manifest
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,39 +11,36 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.fincortex.NotificationService
 import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
+import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
 
 @Composable
 fun SettingsScreen(navController: NavController) {
-    val context = LocalContext.current
-    val notificationService = NotificationService(context)
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                notificationService.showNotification()
-            }
-        }
-    )
+    var notificationsEnabled by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -69,25 +62,48 @@ fun SettingsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Column(
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            colors = CardDefaults.cardColors(containerColor = DarkPrimary)
         ) {
-            Button(
-                onClick = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    } else {
-                        notificationService.showNotification()
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = DarkAccent),
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Notifications, contentDescription = null, tint = DarkBackground)
-                Text(text = "Test Notification", color = DarkBackground, modifier = Modifier.padding(start = 8.dp))
+                Icon(Icons.Default.Notifications, contentDescription = null, tint = DarkAccent)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = "Notification", color = DarkText, modifier = Modifier.weight(1f))
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        onClick = { notificationsEnabled = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (notificationsEnabled) DarkAccent else DarkPrimary,
+                            contentColor = if (notificationsEnabled) DarkPrimary else DarkText
+                        ),
+                        shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
+                        modifier = Modifier.height(36.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Text("ON", fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = { notificationsEnabled = false },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (!notificationsEnabled) DarkAccent else DarkPrimary,
+                            contentColor = if (!notificationsEnabled) DarkPrimary else DarkText
+                        ),
+                        shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
+                        modifier = Modifier.height(36.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Text("OFF", fontSize = 12.sp)
+                    }
+                }
             }
         }
     }

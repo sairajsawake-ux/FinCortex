@@ -65,6 +65,7 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import java.util.concurrent.TimeUnit
+import android.os.CountDownTimer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,6 +79,9 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
     var isSignUp by remember { mutableStateOf(false) }
     var isPhoneAuth by remember { mutableStateOf(false) }
     var verificationId by remember { mutableStateOf<String?>(null) }
+    var resendToken by remember { mutableStateOf<PhoneAuthProvider.ForceResendingToken?>(null) }
+    var resendCooldown by remember { mutableStateOf(0) }
+    var countDownTimer by remember { mutableStateOf<CountDownTimer?>(null) }
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
 
@@ -171,6 +175,10 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
     }
 
     fun sendOtp() {
+        if (!phoneNumber.startsWith("+")) {
+            errorMessage = "Phone number must include country code (e.g., +1)"
+            return
+        }
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber(phoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
@@ -208,7 +216,9 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
 
                 override fun onCodeSent(id: String, token: PhoneAuthProvider.ForceResendingToken) {
                     verificationId = id
+                    resendToken = token
                     errorMessage = ""
+                    startCooldown()
                 }
             })
             .build()
@@ -241,6 +251,69 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
                         errorMessage = task.exception?.message ?: "OTP verification failed"
                     }
                 }
+        }
+    }
+
+    fun startCooldown() {
+        countDownTimer?.cancel()
+        resendCooldown = 60
+        countDownTimer = object : CountDownTimer(60000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                resendCooldown = (millisUntilFinished / 1000).toInt()
+            }
+            override fun onFinish() {
+                resendCooldown = 0
+            }
+        }.start()
+    }
+
+    fun resendOtp() {
+        if (resendToken != null) {
+            val options = PhoneAuthOptions.newBuilder(auth)
+                .setPhoneNumber(phoneNumber)
+                .setTimeout(60L, TimeUnit.SECONDS)
+                .setActivity(context as android.app.Activity)
+                .setForceResendingToken(resendToken!!)
+                .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                    override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                        auth.signInWithCredential(credential)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val user = task.result?.user
+                                    user?.getIdToken(true)?.addOnCompleteListener { tokenTask ->
+                                        if (tokenTask.isSuccessful) {
+                                            val token = tokenTask.result?.token
+                                            if (token != null) {
+                                                val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                                                with(sharedPreferences.edit()) {
+                                                    putString("auth_token", token)
+                                                    apply()
+                                                }
+                                                onLoginSuccess(token)
+                                            }
+                                        } else {
+                                            errorMessage = tokenTask.exception?.message ?: "Failed to get token"
+                                        }
+                                    }
+                                } else {
+                                    errorMessage = task.exception?.message ?: "Phone authentication failed"
+                                }
+                            }
+                    }
+
+                    override fun onVerificationFailed(e: FirebaseException) {
+                        errorMessage = e.message ?: "OTP verification failed"
+                    }
+
+                    override fun onCodeSent(id: String, token: PhoneAuthProvider.ForceResendingToken) {
+                        verificationId = id
+                        resendToken = token
+                        errorMessage = ""
+                        startCooldown()
+                    }
+                })
+                .build()
+            PhoneAuthProvider.verifyPhoneNumber(options)
         }
     }
 
@@ -342,6 +415,17 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
                     colors = ButtonDefaults.buttonColors(containerColor = DarkAccent)
                 ) {
                     Text("Verify OTP", color = DarkPrimary)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { resendOtp() },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = resendCooldown == 0,
+                    colors = ButtonDefaults.buttonColors(containerColor = if (resendCooldown == 0) DarkAccent else androidx.compose.ui.graphics.Color.Gray)
+                ) {
+                    Text(if (resendCooldown > 0) "Resend OTP in $resendCooldown s" else "Resend OTP", color = DarkPrimary)
                 }
             }
         } else {

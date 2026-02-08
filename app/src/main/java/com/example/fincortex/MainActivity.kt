@@ -36,9 +36,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            Routes.HOME
-        } else {
             Routes.SECURITY
+        } else {
+            Routes.LOGIN
         }
 
         setContent {

@@ -24,7 +24,7 @@ fun NavGraph(startDestination: String = Routes.SECURITY) {
         composable(Routes.SECURITY) {
             SecurityScreen(
                 onVerificationSuccess = {
-                    navController.navigate(Routes.LOGIN) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.SECURITY) { inclusive = true }
                     }
                 }
@@ -34,7 +34,7 @@ fun NavGraph(startDestination: String = Routes.SECURITY) {
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate(Routes.HOME) {
+                    navController.navigate(Routes.SECURITY) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 }

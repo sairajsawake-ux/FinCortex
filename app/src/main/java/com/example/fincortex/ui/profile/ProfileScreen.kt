@@ -72,7 +72,7 @@ fun ProfileScreen(navController: NavController) {
             Text(text = "uttaresh.swami@example.com", color = DarkText.copy(alpha = 0.7f), fontSize = 16.sp)
             Spacer(modifier = Modifier.height(32.dp))
 
-            ProfileOption(icon = Icons.Default.Edit, text = "Edit Profile", onClick = { /* TODO */ })
+            ProfileOption(icon = Icons.Default.Edit, text = "Edit Profile", onClick = { navController.navigate(Routes.EDIT_PROFILE) })
             ProfileOption(icon = Icons.Default.Settings, text = "Settings", onClick = { navController.navigate(Routes.APP_SETTINGS) })
             ProfileOption(icon = Icons.Default.Notifications, text = "Notifications", onClick = { navController.navigate(Routes.ACTIVITY_HUB) })
         }

@@ -9,6 +9,7 @@ import com.example.fincortex.ui.advisor.AdvisorScreen
 import com.example.fincortex.ui.growth.GrowthScreen
 import com.example.fincortex.ui.home.HomeScreen
 import com.example.fincortex.ui.login.LoginScreen
+import com.example.fincortex.ui.profile.EditProfileScreen
 import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
 import com.example.fincortex.ui.settings.ChangeDetailsScreen
@@ -76,6 +77,10 @@ fun NavGraph(startDestination: String) {
 
         composable(Routes.CHANGE_DETAILS) {
             ChangeDetailsScreen(navController = navController)
+        }
+
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(navController = navController)
         }
     }
 }

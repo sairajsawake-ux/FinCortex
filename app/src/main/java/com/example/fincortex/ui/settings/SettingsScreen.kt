@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
@@ -39,11 +38,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.fincortex.ui.navigation.Routes
 import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
-import com.example.fincortex.ui.theme.DarkText
+ import com.example.fincortex.ui.theme.DarkText
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -114,28 +112,6 @@ fun SettingsScreen(navController: NavController, onLogout: () -> Unit) {
                         Text("OFF", fontSize = 12.sp)
                     }
                 }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Change Email/Phone Setting
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .clickable { navController.navigate(Routes.CHANGE_DETAILS) },
-            colors = CardDefaults.cardColors(containerColor = DarkPrimary)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Default.Edit, contentDescription = "Change Email / Phone Number", tint = DarkAccent)
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "Change Email / Phone Number", color = DarkText, modifier = Modifier.weight(1f))
             }
         }
 

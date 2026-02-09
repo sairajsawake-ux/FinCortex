@@ -1,5 +1,6 @@
 package com.example.fincortex.ui.profile
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,12 +33,25 @@ import com.example.fincortex.R
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonalDetailsScreen(navController: NavController) {
+    val context = LocalContext.current
+    val sharedPreferences = remember { context.getSharedPreferences("user_details", Context.MODE_PRIVATE) }
+    
+    var fullName by remember { mutableStateOf(sharedPreferences.getString("full_name", "Aryan Ganesh Patil") ?: "Aryan Ganesh Patil") }
+    var dob by remember { mutableStateOf(sharedPreferences.getString("dob", "**/ **/ 2006") ?: "**/ **/ 2006") }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showNameDialog by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var newName by remember { mutableStateOf(fullName) }
+    
+    val datePickerState = rememberDatePickerState()
     val sheetState = rememberModalBottomSheetState()
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -132,8 +147,21 @@ fun PersonalDetailsScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(48.dp))
 
             // Detail Fields
-            DetailItem(label = "Full name (as on PAN card)", value = "Aryan Ganesh Patil", showEdit = false)
-            DetailItem(label = "Date of Birth", value = "**/ **/ 2006", showEdit = false)
+            DetailItem(
+                label = "Full name (as on PAN card)", 
+                value = fullName, 
+                showEdit = true, 
+                onClick = { 
+                    newName = fullName
+                    showNameDialog = true 
+                }
+            )
+            DetailItem(
+                label = "Date of Birth", 
+                value = dob, 
+                showEdit = true,
+                onClick = { showDatePicker = true }
+            )
             DetailItem(label = "Mobile Number", value = "***** 73767", showEdit = true)
             DetailItem(label = "Email", value = "pat*********9@gmail.com", showEdit = true)
             DetailItem(label = "PAN number", value = "****** 489N", showEdit = false)
@@ -143,6 +171,65 @@ fun PersonalDetailsScreen(navController: NavController) {
             DetailItem(label = "Father's Name", value = "Ganesh Patil", showEdit = true)
 
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+
+    if (showNameDialog) {
+        AlertDialog(
+            onDismissRequest = { showNameDialog = false },
+            title = { Text("Update Name") },
+            text = {
+                TextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    label = { Text("Full name (as on PAN card)") },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    fullName = newName
+                    sharedPreferences.edit().putString("full_name", newName).apply()
+                    showNameDialog = false
+                }) {
+                    Text("Update")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNameDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = DarkPrimary,
+            titleContentColor = DarkText,
+            textContentColor = DarkText
+        )
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val sdf = SimpleDateFormat("dd/ MM/ yyyy", Locale.getDefault())
+                        val date = sdf.format(Date(millis))
+                        dob = date
+                        sharedPreferences.edit().putString("dob", date).apply()
+                    }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            },
+            colors = DatePickerDefaults.colors(containerColor = DarkPrimary)
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 
@@ -188,11 +275,12 @@ fun PersonalDetailsScreen(navController: NavController) {
 }
 
 @Composable
-fun DetailItem(label: String, value: String, showEdit: Boolean) {
+fun DetailItem(label: String, value: String, showEdit: Boolean, onClick: (() -> Unit)? = null) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp)
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
     ) {
         Text(text = label, color = DarkText.copy(alpha = 0.6f), fontSize = 14.sp)
         Spacer(modifier = Modifier.height(4.dp))
@@ -212,9 +300,7 @@ fun DetailItem(label: String, value: String, showEdit: Boolean) {
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit",
                     tint = DarkText.copy(alpha = 0.8f),
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable { /* Handle field edit */ }
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }

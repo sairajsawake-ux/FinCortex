@@ -26,12 +26,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.fincortex.R
+import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
@@ -48,17 +51,22 @@ fun PersonalDetailsScreen(navController: NavController) {
     var dob by remember { mutableStateOf(sharedPreferences.getString("dob", "**/ **/ 2006") ?: "**/ **/ 2006") }
     var mobileNumber by remember { mutableStateOf(sharedPreferences.getString("mobile_number", "***** 73767") ?: "***** 73767") }
     var email by remember { mutableStateOf(sharedPreferences.getString("email", "pat*********9@gmail.com") ?: "pat*********9@gmail.com") }
+    var panNumber by remember { mutableStateOf(sharedPreferences.getString("pan_number", "****** 489N") ?: "****** 489N") }
+    var gender by remember { mutableStateOf(sharedPreferences.getString("gender", "Male") ?: "Male") }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
     
     var showBottomSheet by remember { mutableStateOf(false) }
     var showNameDialog by remember { mutableStateOf(false) }
     var showMobileDialog by remember { mutableStateOf(false) }
     var showEmailDialog by remember { mutableStateOf(false) }
+    var showPanDialog by remember { mutableStateOf(false) }
+    var showGenderDialog by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     
     var newName by remember { mutableStateOf(fullName) }
     var newMobile by remember { mutableStateOf(mobileNumber) }
     var newEmail by remember { mutableStateOf(email) }
+    var newPan by remember { mutableStateOf(panNumber) }
     
     val datePickerState = rememberDatePickerState()
     val sheetState = rememberModalBottomSheetState()
@@ -189,8 +197,21 @@ fun PersonalDetailsScreen(navController: NavController) {
                     showEmailDialog = true
                 }
             )
-            DetailItem(label = "PAN number", value = "****** 489N", showEdit = false)
-            DetailItem(label = "Gender", value = "Male", showEdit = false)
+            DetailItem(
+                label = "PAN number", 
+                value = panNumber, 
+                showEdit = true,
+                onClick = {
+                    newPan = panNumber
+                    showPanDialog = true
+                }
+            )
+            DetailItem(
+                label = "Gender", 
+                value = gender, 
+                showEdit = true,
+                onClick = { showGenderDialog = true }
+            )
             DetailItem(label = "Marital Status", value = "Single", showEdit = true)
             DetailItem(label = "Occupation", value = "Student", showEdit = true)
             DetailItem(label = "Father's Name", value = "Ganesh Patil", showEdit = true)
@@ -214,7 +235,7 @@ fun PersonalDetailsScreen(navController: NavController) {
             confirmButton = {
                 TextButton(onClick = {
                     fullName = newName
-                    sharedPreferences.edit().putString("full_name", newName).apply()
+                    sharedPreferences.edit { putString("full_name", newName) }
                     showNameDialog = false
                 }) {
                     Text("Update")
@@ -247,7 +268,7 @@ fun PersonalDetailsScreen(navController: NavController) {
             confirmButton = {
                 TextButton(onClick = {
                     mobileNumber = newMobile
-                    sharedPreferences.edit().putString("mobile_number", newMobile).apply()
+                    sharedPreferences.edit { putString("mobile_number", newMobile) }
                     showMobileDialog = false
                 }) {
                     Text("Update")
@@ -280,7 +301,7 @@ fun PersonalDetailsScreen(navController: NavController) {
             confirmButton = {
                 TextButton(onClick = {
                     email = newEmail
-                    sharedPreferences.edit().putString("email", newEmail).apply()
+                    sharedPreferences.edit { putString("email", newEmail) }
                     showEmailDialog = false
                 }) {
                     Text("Update")
@@ -288,6 +309,84 @@ fun PersonalDetailsScreen(navController: NavController) {
             },
             dismissButton = {
                 TextButton(onClick = { showEmailDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = DarkPrimary,
+            titleContentColor = DarkText,
+            textContentColor = DarkText
+        )
+    }
+
+    if (showPanDialog) {
+        AlertDialog(
+            onDismissRequest = { showPanDialog = false },
+            title = { Text("Update PAN Number") },
+            text = {
+                TextField(
+                    value = newPan,
+                    onValueChange = { newPan = it.uppercase() },
+                    label = { Text("PAN Number") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    panNumber = newPan
+                    sharedPreferences.edit { putString("pan_number", newPan) }
+                    showPanDialog = false
+                }) {
+                    Text("Update")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPanDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = DarkPrimary,
+            titleContentColor = DarkText,
+            textContentColor = DarkText
+        )
+    }
+
+    if (showGenderDialog) {
+        val genders = listOf("Male", "Female", "Other")
+        AlertDialog(
+            onDismissRequest = { showGenderDialog = false },
+            title = { Text("Select Gender") },
+            text = {
+                Column {
+                    genders.forEach { option ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    gender = option
+                                    sharedPreferences.edit { putString("gender", option) }
+                                    showGenderDialog = false
+                                }
+                                .padding(vertical = 12.dp)
+                        ) {
+                            RadioButton(
+                                selected = (option == gender),
+                                onClick = null,
+                                colors = RadioButtonDefaults.colors(selectedColor = DarkAccent)
+                            )
+                            Text(
+                                text = option,
+                                color = DarkText,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showGenderDialog = false }) {
                     Text("Cancel")
                 }
             },
@@ -306,7 +405,7 @@ fun PersonalDetailsScreen(navController: NavController) {
                         val sdf = SimpleDateFormat("dd/ MM/ yyyy", Locale.getDefault())
                         val date = sdf.format(Date(millis))
                         dob = date
-                        sharedPreferences.edit().putString("dob", date).apply()
+                        sharedPreferences.edit { putString("dob", date) }
                     }
                     showDatePicker = false
                 }) {

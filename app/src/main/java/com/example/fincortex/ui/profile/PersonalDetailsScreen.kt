@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +54,7 @@ fun PersonalDetailsScreen(navController: NavController) {
     var email by remember { mutableStateOf(sharedPreferences.getString("email", "pat*********9@gmail.com") ?: "pat*********9@gmail.com") }
     var panNumber by remember { mutableStateOf(sharedPreferences.getString("pan_number", "****** 489N") ?: "****** 489N") }
     var gender by remember { mutableStateOf(sharedPreferences.getString("gender", "Male") ?: "Male") }
+    var maritalStatus by remember { mutableStateOf(sharedPreferences.getString("marital_status", "Single") ?: "Single") }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
     
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -61,6 +63,7 @@ fun PersonalDetailsScreen(navController: NavController) {
     var showEmailDialog by remember { mutableStateOf(false) }
     var showPanDialog by remember { mutableStateOf(false) }
     var showGenderDialog by remember { mutableStateOf(false) }
+    var showMaritalDialog by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     
     var newName by remember { mutableStateOf(fullName) }
@@ -212,7 +215,12 @@ fun PersonalDetailsScreen(navController: NavController) {
                 showEdit = true,
                 onClick = { showGenderDialog = true }
             )
-            DetailItem(label = "Marital Status", value = "Single", showEdit = true)
+            DetailItem(
+                label = "Marital Status", 
+                value = maritalStatus, 
+                showEdit = true,
+                onClick = { showMaritalDialog = true }
+            )
             DetailItem(label = "Occupation", value = "Student", showEdit = true)
             DetailItem(label = "Father's Name", value = "Ganesh Patil", showEdit = true)
 
@@ -387,6 +395,57 @@ fun PersonalDetailsScreen(navController: NavController) {
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showGenderDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = DarkPrimary,
+            titleContentColor = DarkText,
+            textContentColor = DarkText
+        )
+    }
+
+    if (showMaritalDialog) {
+        AlertDialog(
+            onDismissRequest = { showMaritalDialog = false },
+            title = { 
+                Text(
+                    text = "What's your marital status?",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                ) 
+            },
+            text = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    val statuses = listOf("Single", "Married")
+                    statuses.forEach { status ->
+                        OutlinedButton(
+                            onClick = {
+                                maritalStatus = status
+                                sharedPreferences.edit { putString("marital_status", status) }
+                                showMaritalDialog = false
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, if (maritalStatus == status) DarkAccent else Color.Gray.copy(alpha = 0.5f)),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = if (maritalStatus == status) DarkAccent else DarkText
+                            )
+                        ) {
+                            Text(text = status)
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showMaritalDialog = false }) {
                     Text("Cancel")
                 }
             },

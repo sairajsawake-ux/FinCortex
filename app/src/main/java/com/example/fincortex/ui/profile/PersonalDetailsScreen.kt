@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,12 +46,19 @@ fun PersonalDetailsScreen(navController: NavController) {
     
     var fullName by remember { mutableStateOf(sharedPreferences.getString("full_name", "Aryan Ganesh Patil") ?: "Aryan Ganesh Patil") }
     var dob by remember { mutableStateOf(sharedPreferences.getString("dob", "**/ **/ 2006") ?: "**/ **/ 2006") }
+    var mobileNumber by remember { mutableStateOf(sharedPreferences.getString("mobile_number", "***** 73767") ?: "***** 73767") }
+    var email by remember { mutableStateOf(sharedPreferences.getString("email", "pat*********9@gmail.com") ?: "pat*********9@gmail.com") }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
     
     var showBottomSheet by remember { mutableStateOf(false) }
     var showNameDialog by remember { mutableStateOf(false) }
+    var showMobileDialog by remember { mutableStateOf(false) }
+    var showEmailDialog by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    
     var newName by remember { mutableStateOf(fullName) }
+    var newMobile by remember { mutableStateOf(mobileNumber) }
+    var newEmail by remember { mutableStateOf(email) }
     
     val datePickerState = rememberDatePickerState()
     val sheetState = rememberModalBottomSheetState()
@@ -162,8 +171,24 @@ fun PersonalDetailsScreen(navController: NavController) {
                 showEdit = true,
                 onClick = { showDatePicker = true }
             )
-            DetailItem(label = "Mobile Number", value = "***** 73767", showEdit = true)
-            DetailItem(label = "Email", value = "pat*********9@gmail.com", showEdit = true)
+            DetailItem(
+                label = "Mobile Number", 
+                value = mobileNumber, 
+                showEdit = true,
+                onClick = {
+                    newMobile = mobileNumber
+                    showMobileDialog = true
+                }
+            )
+            DetailItem(
+                label = "Email", 
+                value = email, 
+                showEdit = true,
+                onClick = {
+                    newEmail = email
+                    showEmailDialog = true
+                }
+            )
             DetailItem(label = "PAN number", value = "****** 489N", showEdit = false)
             DetailItem(label = "Gender", value = "Male", showEdit = false)
             DetailItem(label = "Marital Status", value = "Single", showEdit = true)
@@ -197,6 +222,72 @@ fun PersonalDetailsScreen(navController: NavController) {
             },
             dismissButton = {
                 TextButton(onClick = { showNameDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = DarkPrimary,
+            titleContentColor = DarkText,
+            textContentColor = DarkText
+        )
+    }
+
+    if (showMobileDialog) {
+        AlertDialog(
+            onDismissRequest = { showMobileDialog = false },
+            title = { Text("Update Mobile Number") },
+            text = {
+                TextField(
+                    value = newMobile,
+                    onValueChange = { newMobile = it },
+                    label = { Text("Mobile Number") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    mobileNumber = newMobile
+                    sharedPreferences.edit().putString("mobile_number", newMobile).apply()
+                    showMobileDialog = false
+                }) {
+                    Text("Update")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showMobileDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = DarkPrimary,
+            titleContentColor = DarkText,
+            textContentColor = DarkText
+        )
+    }
+
+    if (showEmailDialog) {
+        AlertDialog(
+            onDismissRequest = { showEmailDialog = false },
+            title = { Text("Update Email") },
+            text = {
+                TextField(
+                    value = newEmail,
+                    onValueChange = { newEmail = it },
+                    label = { Text("Email") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    email = newEmail
+                    sharedPreferences.edit().putString("email", newEmail).apply()
+                    showEmailDialog = false
+                }) {
+                    Text("Update")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEmailDialog = false }) {
                     Text("Cancel")
                 }
             },

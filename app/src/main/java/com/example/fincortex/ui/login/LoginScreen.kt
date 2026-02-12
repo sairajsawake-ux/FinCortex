@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -51,10 +52,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fincortex.R
-import com.example.fincortex.ui.theme.DarkAccent
-import com.example.fincortex.ui.theme.DarkBackground
-import com.example.fincortex.ui.theme.DarkPrimary
-import com.example.fincortex.ui.theme.DarkText
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -329,7 +326,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(DarkBackground, DarkPrimary)))
+            .background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.primary)))
             .padding(horizontal = 32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -340,7 +337,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .border(2.dp, DarkAccent, CircleShape)
+                .border(2.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -349,7 +346,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
             text = "FinCortex",
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
-            color = DarkAccent,
+            color = MaterialTheme.colorScheme.tertiary,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -366,17 +363,17 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
                 OutlinedTextField(
                     value = phoneNumber,
                     onValueChange = { phoneNumber = it },
-                    label = { Text("Phone Number", color = DarkText) },
+                    label = { Text("Phone Number", color = MaterialTheme.colorScheme.onBackground) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Phone,
                         imeAction = ImeAction.Done
                     ),
-                    textStyle = TextStyle(color = DarkText),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = DarkAccent,
-                        unfocusedBorderColor = DarkText,
-                        cursorColor = DarkAccent
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.tertiary
                     )
                 )
 
@@ -385,25 +382,25 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
                 Button(
                     onClick = { sendOtp() },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = DarkAccent)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                 ) {
-                    Text("Send OTP", color = DarkPrimary)
+                    Text("Send OTP", color = MaterialTheme.colorScheme.onTertiary)
                 }
             } else {
                 OutlinedTextField(
                     value = otp,
                     onValueChange = { otp = it },
-                    label = { Text("OTP", color = DarkText) },
+                    label = { Text("OTP", color = MaterialTheme.colorScheme.onBackground) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
                     ),
-                    textStyle = TextStyle(color = DarkText),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = DarkAccent,
-                        unfocusedBorderColor = DarkText,
-                        cursorColor = DarkAccent
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.tertiary
                     )
                 )
 
@@ -412,9 +409,9 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
                 Button(
                     onClick = { verifyOtp() },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = DarkAccent)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                 ) {
-                    Text("Verify OTP", color = DarkPrimary)
+                    Text("Verify OTP", color = MaterialTheme.colorScheme.onTertiary)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -432,17 +429,17 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email", color = DarkText) },
+                label = { Text("Email", color = MaterialTheme.colorScheme.onBackground) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
-                textStyle = TextStyle(color = DarkText),
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = DarkAccent,
-                    unfocusedBorderColor = DarkText,
-                    cursorColor = DarkAccent
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    cursorColor = MaterialTheme.colorScheme.tertiary
                 )
             )
 
@@ -451,7 +448,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password", color = DarkText) },
+                label = { Text("Password", color = MaterialTheme.colorScheme.onBackground) },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions.Default.copy(
@@ -464,14 +461,14 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
                     else Icons.Filled.VisibilityOff
 
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password", tint = DarkAccent)
+                        Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password", tint = MaterialTheme.colorScheme.tertiary)
                     }
                 },
-                textStyle = TextStyle(color = DarkText),
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = DarkAccent,
-                    unfocusedBorderColor = DarkText,
-                    cursorColor = DarkAccent
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    cursorColor = MaterialTheme.colorScheme.tertiary
                 )
             )
 
@@ -480,7 +477,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
                     text = if (isSignUp) "Already have an account? Login" else "Don't have an account? Sign Up",
-                    color = DarkAccent,
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.clickable { isSignUp = !isSignUp }
                 )
             }
@@ -490,9 +487,9 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
             Button(
                 onClick = { if (isSignUp) signUpWithEmail() else signInWithEmail() },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkAccent)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
-                Text(if (isSignUp) "Sign Up" else "Login", color = DarkPrimary)
+                Text(if (isSignUp) "Sign Up" else "Login", color = MaterialTheme.colorScheme.onTertiary)
             }
         }
 
@@ -508,9 +505,9 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit) {
 
             Button(
                 onClick = { isPhoneAuth = !isPhoneAuth; verificationId = null; otp = ""; phoneNumber = "" },
-                colors = ButtonDefaults.buttonColors(containerColor = DarkAccent)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
-                Text("Phone", color = DarkPrimary)
+                Text("Phone", color = MaterialTheme.colorScheme.onTertiary)
             }
         }
     }

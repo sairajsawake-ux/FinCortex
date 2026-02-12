@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -37,10 +38,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.fincortex.ui.theme.DarkAccent
-import com.example.fincortex.ui.theme.DarkBackground
-import com.example.fincortex.ui.theme.DarkPrimary
-import com.example.fincortex.ui.theme.DarkText
 
 data class Message(val text: String, val isUser: Boolean)
 
@@ -52,7 +49,7 @@ fun AdvisorScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
     ) {
         Row(
@@ -62,10 +59,10 @@ fun AdvisorScreen(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = DarkText)
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(modifier = Modifier.width(16.dp))
-            Text(text = "Financial Advisor", color = DarkText, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Financial Advisor", color = MaterialTheme.colorScheme.onBackground, fontSize = 22.sp, fontWeight = FontWeight.Bold)
         }
 
         LazyColumn(
@@ -85,9 +82,9 @@ fun AdvisorScreen(navController: NavController) {
                         text = msg.text,
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(if (msg.isUser) DarkAccent else DarkPrimary)
+                            .background(if (msg.isUser) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surface)
                             .padding(12.dp),
-                        color = DarkText
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -105,10 +102,10 @@ fun AdvisorScreen(navController: NavController) {
                 modifier = Modifier.weight(1f),
                 placeholder = { Text("Ask your question...") },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = DarkPrimary,
-                    unfocusedContainerColor = DarkPrimary,
-                    disabledContainerColor = DarkPrimary,
-                    cursorColor = DarkAccent,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    cursorColor = MaterialTheme.colorScheme.tertiary,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -122,7 +119,7 @@ fun AdvisorScreen(navController: NavController) {
                     message = ""
                 }
             }) {
-                Icon(Icons.Default.Send, contentDescription = "Send", tint = DarkAccent)
+                Icon(Icons.Default.Send, contentDescription = "Send", tint = MaterialTheme.colorScheme.tertiary)
             }
         }
     }

@@ -29,6 +29,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,11 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.fincortex.ui.theme.DarkAccent
-import com.example.fincortex.ui.theme.DarkBackground
-import com.example.fincortex.ui.theme.DarkPrimary
-import com.example.fincortex.ui.theme.DarkSecondary
-import com.example.fincortex.ui.theme.DarkText
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -57,16 +53,16 @@ fun GrowthScreen(navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
             .padding(16.dp)
     ) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = DarkText)
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
                 }
-                Text(text = "Growth", color = DarkText, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Growth", color = MaterialTheme.colorScheme.onBackground, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             }
         }
         item {
@@ -91,18 +87,18 @@ fun PerformanceChartCard() {
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkPrimary)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Performance", color = DarkText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("Performance", color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
             LineChart()
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = DarkAccent)) { Text("1M") }
-                Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = DarkSecondary)) { Text("3M") }
-                Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = DarkSecondary)) { Text("6M") }
-                 Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = DarkSecondary)) { Text("1Y") }
+                Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)) { Text("1M") }
+                Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) { Text("3M") }
+                Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) { Text("6M") }
+                 Button(onClick = { /* TODO */ }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) { Text("1Y") }
             }
         }
     }
@@ -112,6 +108,9 @@ fun PerformanceChartCard() {
 fun LineChart() {
     val points = listOf(120f, 150f, 130f, 180f, 160f, 190f, 140f, 170f, 200f, 220f)
     val yAxisValues = listOf(100f, 150f, 200f, 250f)
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,7 +118,7 @@ fun LineChart() {
     ) { 
         val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
         val textPaint = Paint().asFrameworkPaint().apply {
-            color = DarkText.copy(alpha = 0.6f).toArgb()
+            color = onSurfaceColor.copy(alpha = 0.6f).toArgb()
             textSize = 12.sp.toPx()
         }
 
@@ -138,7 +137,7 @@ fun LineChart() {
             val startY = size.height * (1 - (points[i] - 100f) / 150f)
             val endX = (size.width / (points.size - 1)) * (i + 1)
             val endY = size.height * (1 - (points[i+1] - 100f) / 150f)
-            drawLine(DarkAccent, start = Offset(startX, startY), end = Offset(endX, endY), strokeWidth = 5f)
+            drawLine(tertiaryColor, start = Offset(startX, startY), end = Offset(endX, endY), strokeWidth = 5f)
 
             // Draw value text above each point
             drawIntoCanvas {
@@ -163,10 +162,10 @@ fun AssetAllocationCard() {
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkPrimary)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Asset Allocation", color = DarkText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("Asset Allocation", color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
             PieChart()
             Spacer(modifier = Modifier.height(16.dp))
@@ -178,7 +177,7 @@ fun AssetAllocationCard() {
 @Composable
 fun PieChart() {
     val assets = mapOf("Stocks" to 60f, "Bitcoin" to 25f, "ETFs" to 15f, "Gold" to 10f, "Real Estate" to 5f)
-    val colors = listOf(DarkAccent, Color.Gray, DarkSecondary, Color.LightGray, Color.DarkGray)
+    val colors = listOf(MaterialTheme.colorScheme.tertiary, Color.Gray, MaterialTheme.colorScheme.secondary, Color.LightGray, Color.DarkGray)
     val total = assets.values.sum()
     var startAngle = 0f
 
@@ -218,7 +217,7 @@ fun PieChart() {
 @Composable
 fun AssetLegend() {
     val assets = mapOf("Stocks" to 60f, "Bitcoin" to 25f, "ETFs" to 15f, "Gold" to 10f, "Real Estate" to 5f)
-    val colors = listOf(DarkAccent, Color.Gray, DarkSecondary, Color.LightGray, Color.DarkGray)
+    val colors = listOf(MaterialTheme.colorScheme.tertiary, Color.Gray, MaterialTheme.colorScheme.secondary, Color.LightGray, Color.DarkGray)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         assets.keys.forEachIndexed { index, name ->
@@ -232,7 +231,7 @@ fun LegendItem(name: String, color: Color) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
         Box(modifier = Modifier.size(16.dp).background(color, CircleShape))
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text = name, color = DarkText, fontSize = 14.sp)
+        Text(text = name, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp)
     }
 }
 
@@ -243,14 +242,14 @@ fun MarketNewsCard() {
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkPrimary)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Market News", color = DarkText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("Market News", color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Stock futures are flat as Wall Street looks to extend its July rally", color = DarkText)
+            Text("Stock futures are flat as Wall Street looks to extend its July rally", color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Investors are looking ahead to a busy week of earnings reports and economic data.", color = DarkText.copy(alpha = 0.7f), fontSize = 14.sp)
+            Text("Investors are looking ahead to a busy week of earnings reports and economic data.", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 14.sp)
         }
     }
 }
@@ -262,14 +261,14 @@ fun TopMoversCard() {
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkPrimary)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Top Movers", color = DarkText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("Top Movers", color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("AAPL", color = DarkText)
-                Text("195.89", color = DarkText)
+                Text("AAPL", color = MaterialTheme.colorScheme.onSurface)
+                Text("195.89", color = MaterialTheme.colorScheme.onSurface)
                 Row {
                     Icon(Icons.Default.ArrowUpward, contentDescription = null, tint = Color.Green)
                     Text("1.2%", color = Color.Green)
@@ -277,8 +276,8 @@ fun TopMoversCard() {
             }
             Spacer(modifier = Modifier.height(8.dp))
              Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("GOOGL", color = DarkText)
-                Text("132.58", color = DarkText)
+                Text("GOOGL", color = MaterialTheme.colorScheme.onSurface)
+                Text("132.58", color = MaterialTheme.colorScheme.onSurface)
                 Row {
                     Icon(Icons.Default.ArrowDownward, contentDescription = null, tint = Color.Red)
                     Text("0.8%", color = Color.Red)

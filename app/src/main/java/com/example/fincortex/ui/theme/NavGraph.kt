@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import com.example.fincortex.ui.activityhub.ActivityHubScreen
 import com.example.fincortex.ui.advisor.AdvisorScreen
 import com.example.fincortex.ui.growth.GrowthScreen
@@ -11,6 +12,7 @@ import com.example.fincortex.ui.home.HomeScreen
 import com.example.fincortex.ui.login.LoginScreen
 import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
+import com.example.fincortex.ui.settings.SettingsScreen
 
 @Composable
 fun NavGraph() {
@@ -54,18 +56,24 @@ fun NavGraph() {
         }
 
         composable(Routes.PROFILE) {
-            ProfileScreen(
-                navController = navController,
-                onLogout = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.HOME) { inclusive = true }
-                    }
-                }
-            )
+            ProfileScreen(navController = navController)
         }
 
-        composable(Routes.ACTIVITY_HUB) {
+        composable(
+            route = Routes.ACTIVITY_HUB,
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "fincortex://activity_hub" }
+            )
+        ) {
             ActivityHubScreen(navController = navController)
+        }
+
+        composable(Routes.APP_SETTINGS) {
+            SettingsScreen(navController = navController, onLogout = {
+                navController.navigate(Routes.LOGIN) {
+                    popUpTo(Routes.HOME) { inclusive = true }
+                }
+            })
         }
     }
 }

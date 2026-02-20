@@ -92,6 +92,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // Coil
+    implementation(libs.coil.compose)
+
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)

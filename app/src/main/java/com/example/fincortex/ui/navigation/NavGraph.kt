@@ -11,9 +11,10 @@ import com.example.fincortex.ui.home.HomeScreen
 import com.example.fincortex.ui.login.LoginScreen
 import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavGraph(startDestination: String = Routes.SECURITY) {
+fun NavGraph(startDestination: String) {
     val navController = rememberNavController()
 
     NavHost(
@@ -22,9 +23,11 @@ fun NavGraph(startDestination: String = Routes.SECURITY) {
     ) {
 
         composable(Routes.SECURITY) {
+            val auth = FirebaseAuth.getInstance()
             SecurityScreen(
                 onVerificationSuccess = {
-                    navController.navigate(Routes.HOME) {
+                    val route = if (auth.currentUser != null) Routes.HOME else Routes.LOGIN
+                    navController.navigate(route) {
                         popUpTo(Routes.SECURITY) { inclusive = true }
                     }
                 }
@@ -34,7 +37,7 @@ fun NavGraph(startDestination: String = Routes.SECURITY) {
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate(Routes.SECURITY) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 }

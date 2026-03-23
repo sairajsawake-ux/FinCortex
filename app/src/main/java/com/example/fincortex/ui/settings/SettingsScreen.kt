@@ -41,7 +41,7 @@ import androidx.navigation.NavController
 import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
- import com.example.fincortex.ui.theme.DarkText
+import com.example.fincortex.ui.theme.DarkText
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable

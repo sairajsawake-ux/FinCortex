@@ -1,51 +1,89 @@
 const admin = require('../firebase/firebaseAdmin');
 const db = admin.firestore();
+const { getCategory } = require('../utils/categorization');
+
+// Standard API response format
+const apiResponse = (res, statusCode, success, message, data = null) => {
+  return res.status(statusCode).json({
+    success,
+    message,
+    ...(data && { data })
+  });
+};
 
 const addExpense = async (req, res) => {
   try {
-    const { amount, category, title } = req.body;
+    const { amount, category, title, type = 'debit', description = '' } = req.body;
     const userId = req.user.uid;
 
-    if (!amount || !category) {
-      return res.status(400).json({ message: "Amount and category are required" });
+    // Validate required fields
+    if (!amount) {
+      return apiResponse(res, 400, false, "Amount is required");
     }
+
+    // Validate amount is numeric
+    if (isNaN(parseFloat(amount)) || !isFinite(amount)) {
+      return apiResponse(res, 400, false, "Amount must be a valid number");
+    }
+
+    // Assign category dynamically if not provided
+    const finalCategory = category || getCategory(description || title || '');
 
     const riskTag = Number(amount) > 5000 ? "HIGH_SPENDING" : "NORMAL";
 
     const newExpense = {
       userId,
-      amount,
-      category,
+      amount: parseFloat(amount),
+      category: finalCategory,
+      type: type.toLowerCase(),
       title: title || '',
+      description: description || '',
       riskTag,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
     await db.collection('expenses').add(newExpense);
 
-    res.status(201).json({
-      success: true,
-      message: "Expense added successfully",
+    return apiResponse(res, 201, true, "Expense added successfully", {
+      id: newExpense.id,
+      ...newExpense,
       aiInsight: `Expense tagged as ${riskTag}`
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error adding expense:', error);
+    return apiResponse(res, 500, false, `Server error: ${error.message}`);
   }
 };
 
 const getAllExpenses = async (req, res) => {
   try {
     const userId = req.user.uid;
-    const snapshot = await db.collection('expenses').where('userId', '==', userId).get();
+    const { category, type } = req.query;
+    
+    let query = db.collection('expenses').where('userId', '==', userId);
+
+    if (category) {
+      query = query.where('category', '==', category);
+    }
+    if (type) {
+      query = query.where('type', '==', type);
+    }
+
+    const snapshot = await query.orderBy('createdAt', 'desc').get();
 
     const expenses = [];
     snapshot.forEach(doc => {
       expenses.push({ id: doc.id, ...doc.data() });
     });
 
-    res.status(200).json(expenses);
+    return apiResponse(res, 200, true, "Expenses retrieved successfully", {
+      expenses,
+      count: expenses.length
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error getting expenses:', error);
+    return apiResponse(res, 500, false, `Server error: ${error.message}`);
   }
 };
 

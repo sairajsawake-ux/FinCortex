@@ -1,4 +1,4 @@
-package com.yourpackage.network
+package com.example.fincortex.model
 
 data class InsightResponse(
     val total_spent: Double,

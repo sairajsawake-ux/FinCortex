@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const { addExpense, getAllExpenses } = require("../controllers/expenseController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Handle potential import issues (named vs default export)
-const authMiddlewareImport = require("../middleware/authMiddleware");
-const authMiddleware = typeof authMiddlewareImport === 'function' 
-  ? authMiddlewareImport 
-  : (authMiddlewareImport.authMiddleware || ((req, res, next) => next()));
+// Apply auth middleware to all expense routes
+router.use(authMiddleware);
 
-router.post("/add", authMiddleware, addExpense);
-router.get("/", authMiddleware, getAllExpenses);
+// Route: POST /expense/add
+router.post("/add", addExpense);
+
+// Route: GET /expense/
+router.get("/", getAllExpenses);
 
 module.exports = router;

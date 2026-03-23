@@ -1,4 +1,4 @@
-package com.yourpackage.network
+package com.example.fincortex.model
 
 data class ExpenseDto(
     val amount: Double,

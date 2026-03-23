@@ -9,8 +9,10 @@ import com.example.fincortex.ui.advisor.AdvisorScreen
 import com.example.fincortex.ui.growth.GrowthScreen
 import com.example.fincortex.ui.home.HomeScreen
 import com.example.fincortex.ui.login.LoginScreen
+import com.example.fincortex.ui.profile.EditProfileScreen
 import com.example.fincortex.ui.profile.ProfileScreen
 import com.example.fincortex.ui.security.SecurityScreen
+import com.example.fincortex.ui.settings.SettingsScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -57,7 +59,15 @@ fun NavGraph(startDestination: String) {
         }
 
         composable(Routes.PROFILE) {
-            ProfileScreen(
+            ProfileScreen(navController = navController)
+        }
+
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(navController = navController)
+        }
+
+        composable(Routes.APP_SETTINGS) {
+            SettingsScreen(
                 navController = navController,
                 onLogout = {
                     navController.navigate(Routes.LOGIN) {

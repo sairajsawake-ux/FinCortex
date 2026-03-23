@@ -73,7 +73,7 @@ import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkSecondary
 import com.example.fincortex.ui.theme.DarkText
-import com.example.fincortex.ui.theme.Routes
+import com.example.fincortex.ui.navigation.Routes
 
 // --- Data Classes for Placeholders ---
 data class Account(val name: String, val icon: ImageVector, val balance: String, val lastDigits: String)

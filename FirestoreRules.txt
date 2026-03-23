@@ -1,0 +1,57 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// Firestore Security Rules — FinCortex
+//
+// Deploy via Firebase Console → Firestore → Rules, or with:
+//   firebase deploy --only firestore:rules
+//
+// These rules ensure:
+//  1. Only authenticated users can read/write any document.
+//  2. Each user can only access their own data (userId field check).
+// ──────────────────────────────────────────────────────────────────────────────
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Users collection ──────────────────────────────────────────────────────
+    // A user can only read/write their own profile document.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── Transactions collection ───────────────────────────────────────────────
+    // Allow access only to documents where the userId field matches the caller.
+    match /transactions/{transactionId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.userId;
+
+      // Allow create when the new document's userId matches the caller.
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ── Budgets collection ────────────────────────────────────────────────────
+    match /budgets/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── Investments collection ────────────────────────────────────────────────
+    match /investments/{investmentId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.userId;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ── Expenses collection ───────────────────────────────────────────────────
+    match /expenses/{expenseId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.userId;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.userId;
+    }
+  }
+}

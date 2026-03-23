@@ -42,6 +42,8 @@ import com.example.fincortex.ui.theme.DarkAccent
 import com.example.fincortex.ui.theme.DarkBackground
 import com.example.fincortex.ui.theme.DarkPrimary
 import com.example.fincortex.ui.theme.DarkText
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -123,7 +125,12 @@ fun SettingsScreen(navController: NavController, onLogout: () -> Unit) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .clickable {
+                    // Sign out of Google to clear the cached account (allows account picker next login)
+                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+                    GoogleSignIn.getClient(context, gso).signOut()
+                    // Sign out of Firebase Auth
                     FirebaseAuth.getInstance().signOut()
+                    // Clear stored auth token
                     val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
                     with(sharedPreferences.edit()) {
                         remove("auth_token")

@@ -35,4 +35,26 @@ class UserRepository {
                 onResult(null)
             }
     }
+
+    /**
+     * Creates a Firestore user document only if one does not already exist.
+     * Safe to call on every login — existing users are never overwritten.
+     */
+    fun ensureUserExists(uid: String, name: String, email: String, onResult: (Boolean) -> Unit = {}) {
+        usersCollection.document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    onResult(true)
+                } else {
+                    val user = User(
+                        uid = uid,
+                        name = name,
+                        email = email,
+                        createdAt = System.currentTimeMillis()
+                    )
+                    saveUser(user, onResult)
+                }
+            }
+            .addOnFailureListener { onResult(false) }
+    }
 }

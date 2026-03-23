@@ -13,4 +13,6 @@ object Routes {
     const val CHANGE_DETAILS = "change_details"
     const val EDIT_PROFILE = "edit_profile"
     const val PERSONAL_DETAILS = "personal_details"
+    const val DASHBOARD   = "dashboard"
+    const val INVESTMENTS = "investments"
 }

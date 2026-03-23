@@ -69,9 +69,6 @@ import com.example.fincortex.viewmodel.BudgetViewModel
 import com.example.fincortex.viewmodel.InvestmentViewModel
 import com.example.fincortex.viewmodel.TransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,22 +117,6 @@ fun DashboardScreen(navController: NavController) {
         AnalyticsUtils.monthlyChartData(transactionVM.transactions)
     }
 
-    // Derived values for new sections
-    val budgetLimit = budgetVM.budget?.monthlyLimit ?: 0.0
-    val budgetRemaining = budgetVM.budget?.remainingAmount ?: 0.0
-    val budgetExceeded = budgetVM.budget?.limitExceeded == true
-    val topCategory = transactionVM.categorySummary.maxByOrNull { it.value }?.key ?: "N/A"
-    val monthlyTxnCount = remember(transactionVM.transactions) {
-        val cal = java.util.Calendar.getInstance().apply {
-            set(java.util.Calendar.DAY_OF_MONTH, 1)
-            set(java.util.Calendar.HOUR_OF_DAY, 0)
-            set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0)
-            set(java.util.Calendar.MILLISECOND, 0)
-        }
-        transactionVM.transactions.count { it.createdAt >= cal.timeInMillis }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -171,52 +152,53 @@ fun DashboardScreen(navController: NavController) {
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
 
-                // ── DEBUG BANNER ─────────────────────────────────────────────
+                // Budget warning banner
+                budgetVM.budgetWarning?.let { warning ->
+                    item { BudgetWarningBanner(warning) }
+                }
+
+                // Spending overview card
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF00C853), RoundedCornerShape(8.dp))
-                            .padding(vertical = 8.dp, horizontal = 12.dp)
-                    ) {
-                        Text(
-                            text = "NEW DASHBOARD VERSION",
-                            color = Color.Black,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 13.sp,
-                            letterSpacing = 1.sp
-                        )
+                    SpendingOverviewCard(
+                        totalSpent = transactionVM.totalSpent,
+                        monthlySpent = transactionVM.monthlySpent
+                    )
+                }
+
+                // Budget progress card
+                budgetVM.budget?.let { b ->
+                    if (b.monthlyLimit > 0) {
+                        item {
+                            BudgetProgressCard(
+                                spent = b.spentAmount,
+                                limit = b.monthlyLimit,
+                                remaining = b.remainingAmount
+                            )
+                        }
                     }
                 }
 
-                // ── HEADER ───────────────────────────────────────────────────
-                item { DashboardHeader() }
-
-                // ── BUDGET EXCEEDED ALERT ────────────────────────────────────
-                if (budgetExceeded) {
-                    item { BudgetExceededAlert() }
+                // Category breakdown
+                if (transactionVM.categorySummary.isNotEmpty()) {
+                    item { CategoryBreakdownCard(transactionVM.categorySummary) }
                 }
 
-                // ── SUMMARY CARDS ────────────────────────────────────────────
-                item {
-                    SummaryCardsRow(
-                        totalTransactions = transactionVM.transactions.size,
-                        totalSpending = transactionVM.totalSpent,
-                        currentBudget = budgetLimit,
-                        remainingBudget = budgetRemaining
-                    )
+                // ── Smart Insights ──────────────────────────────────────────
+                if (insights.isNotEmpty()) {
+                    item { SmartInsightsCard(insights) }
                 }
 
-                // ── INSIGHTS SUMMARY ─────────────────────────────────────────
-                item {
-                    InsightsSummaryCard(
-                        topCategory = topCategory,
-                        budgetRemaining = budgetRemaining,
-                        monthlyTxnCount = monthlyTxnCount
-                    )
+                // ── Category Pie Chart ───────────────────────────────────────
+                if (categoryData.isNotEmpty()) {
+                    item { CategoryPieChartCard(categoryData) }
                 }
 
-                // ── RECENT TRANSACTIONS (with date) ──────────────────────────
+                // ── Monthly Bar Chart ────────────────────────────────────────
+                if (monthlyData.any { it.amount > 0f }) {
+                    item { MonthlyBarChartCard(monthlyData) }
+                }
+
+                // ── Recent Transactions ──────────────────────────────────────
                 val recent = transactionVM.transactions.take(10)
                 if (recent.isNotEmpty()) {
                     item {
@@ -230,53 +212,7 @@ fun DashboardScreen(navController: NavController) {
                     items(recent) { txn -> TransactionRow(txn) }
                 }
 
-                // ── existing: Budget warning banner ──────────────────────────
-                budgetVM.budgetWarning?.let { warning ->
-                    item { BudgetWarningBanner(warning) }
-                }
-
-                // ── existing: Spending overview card ─────────────────────────
-                item {
-                    SpendingOverviewCard(
-                        totalSpent = transactionVM.totalSpent,
-                        monthlySpent = transactionVM.monthlySpent
-                    )
-                }
-
-                // ── existing: Budget progress card ───────────────────────────
-                budgetVM.budget?.let { b ->
-                    if (b.monthlyLimit > 0) {
-                        item {
-                            BudgetProgressCard(
-                                spent = b.spentAmount,
-                                limit = b.monthlyLimit,
-                                remaining = b.remainingAmount
-                            )
-                        }
-                    }
-                }
-
-                // ── existing: Category breakdown ─────────────────────────────
-                if (transactionVM.categorySummary.isNotEmpty()) {
-                    item { CategoryBreakdownCard(transactionVM.categorySummary) }
-                }
-
-                // ── existing: Smart Insights ──────────────────────────────────
-                if (insights.isNotEmpty()) {
-                    item { SmartInsightsCard(insights) }
-                }
-
-                // ── existing: Category Pie Chart ──────────────────────────────
-                if (categoryData.isNotEmpty()) {
-                    item { CategoryPieChartCard(categoryData) }
-                }
-
-                // ── existing: Monthly Bar Chart ───────────────────────────────
-                if (monthlyData.any { it.amount > 0f }) {
-                    item { MonthlyBarChartCard(monthlyData) }
-                }
-
-                // ── existing: Investments shortcut ────────────────────────────
+                // ── Investments shortcut ─────────────────────────────────────
                 item {
                     InvestmentsShortcutCard(
                         totalInvested = investmentVM.totalInvested,
@@ -284,7 +220,7 @@ fun DashboardScreen(navController: NavController) {
                     )
                 }
 
-                // ── existing: Export Report ───────────────────────────────────
+                // ── Export Report ────────────────────────────────────────────
                 if (transactionVM.transactions.isNotEmpty()) {
                     item {
                         ExportReportCard(
@@ -307,208 +243,6 @@ fun DashboardScreen(navController: NavController) {
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NEW: Dashboard Header
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun DashboardHeader() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A3A5C))
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "FinCortex Dashboard",
-                color = DarkAccent,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 0.5.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Welcome back! Here's your financial overview.",
-                color = DarkText.copy(alpha = 0.75f),
-                fontSize = 13.sp
-            )
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NEW: Budget Exceeded Alert
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun BudgetExceededAlert() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFB71C1C))
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "⚠", fontSize = 20.sp)
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "Budget exceeded!",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NEW: Summary Cards Row (2 × 2 grid)
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun SummaryCardsRow(
-    totalTransactions: Int,
-    totalSpending: Double,
-    currentBudget: Double,
-    remainingBudget: Double
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            SummaryCard(
-                label = "Total Transactions",
-                value = "$totalTransactions",
-                valueColor = DarkAccent,
-                modifier = Modifier.weight(1f)
-            )
-            SummaryCard(
-                label = "Total Spending",
-                value = "₹${"%.0f".format(totalSpending)}",
-                valueColor = Color(0xFFFF6B6B),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            SummaryCard(
-                label = "Current Budget",
-                value = if (currentBudget > 0) "₹${"%.0f".format(currentBudget)}" else "Not set",
-                valueColor = Color(0xFF64B5F6),
-                modifier = Modifier.weight(1f)
-            )
-            SummaryCard(
-                label = "Remaining",
-                value = if (currentBudget > 0) "₹${"%.0f".format(remainingBudget)}" else "—",
-                valueColor = if (remainingBudget >= 0) Color(0xFF81C784) else Color(0xFFFF6B6B),
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SummaryCard(
-    label: String,
-    value: String,
-    valueColor: Color,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkPrimary)
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = label,
-                color = DarkText.copy(alpha = 0.6f),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = value,
-                color = valueColor,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NEW: Insights Summary Card
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun InsightsSummaryCard(
-    topCategory: String,
-    budgetRemaining: Double,
-    monthlyTxnCount: Int
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1B2A3B))
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = Color(0xFF64B5F6),
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Insights",
-                    color = DarkText,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            InsightLine(text = "You spent most on $topCategory")
-            Spacer(modifier = Modifier.height(8.dp))
-            InsightLine(
-                text = "Budget remaining: ₹${"%.2f".format(budgetRemaining)}"
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            InsightLine(text = "Transactions this month: $monthlyTxnCount")
-        }
-    }
-}
-
-@Composable
-private fun InsightLine(text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .size(6.dp)
-                .background(DarkAccent, RoundedCornerShape(50))
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = text,
-            color = DarkText.copy(alpha = 0.85f),
-            fontSize = 13.sp
-        )
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// EXISTING (unchanged below)
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun BudgetWarningBanner(message: String) {
@@ -683,6 +417,10 @@ private fun CategoryProgressRow(category: String, amount: Double, total: Double)
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW: Smart Insights
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Composable
 private fun SmartInsightsCard(insights: List<SmartInsights.Insight>) {
     Card(
@@ -734,6 +472,10 @@ private fun InsightRow(insight: SmartInsights.Insight) {
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW: Charts
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Composable
 private fun CategoryPieChartCard(data: List<AnalyticsUtils.CategoryData>) {
     Card(
@@ -773,6 +515,10 @@ private fun MonthlyBarChartCard(data: List<AnalyticsUtils.MonthlyData>) {
         }
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW: Export Report
+// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun ExportReportCard(onExportCsv: () -> Unit, onExportPdf: () -> Unit) {
@@ -826,6 +572,10 @@ private fun ExportReportCard(onExportCsv: () -> Unit, onExportPdf: () -> Unit) {
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW: Investments shortcut
+// ─────────────────────────────────────────────────────────────────────────────
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InvestmentsShortcutCard(totalInvested: Double, onClick: () -> Unit) {
@@ -872,17 +622,13 @@ private fun InvestmentsShortcutCard(totalInvested: Double, onClick: () -> Unit) 
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// EXISTING (unchanged below)
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Composable
 private fun TransactionRow(txn: TransactionModel) {
     val isCredit = txn.type == "credit"
-    val dateLabel = if (txn.date.isNotBlank()) {
-        txn.date
-    } else if (txn.createdAt > 0) {
-        SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(txn.createdAt))
-    } else {
-        "—"
-    }
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -909,11 +655,6 @@ private fun TransactionRow(txn: TransactionModel) {
                     text = txn.category,
                     color = DarkText.copy(alpha = 0.6f),
                     fontSize = 12.sp
-                )
-                Text(
-                    text = dateLabel,
-                    color = DarkText.copy(alpha = 0.45f),
-                    fontSize = 11.sp
                 )
             }
             Text(

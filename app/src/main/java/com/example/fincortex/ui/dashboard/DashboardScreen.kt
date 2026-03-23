@@ -41,6 +41,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,11 +94,27 @@ fun DashboardScreen(navController: NavController) {
         }
     }
 
-    // Automatic alerts — fires after every real-time Firestore update
-    LaunchedEffect(transactionVM.transactions, budgetVM.budget) {
+    // Automatic alerts — fires after every successful recomposition (non-Composable side effect)
+    SideEffect {
         if (transactionVM.transactions.isNotEmpty()) {
+            android.util.Log.d("DashboardScreen", "Checking alerts for ${transactionVM.transactions.size} transactions")
             AlertManager.checkAndAlert(context, transactionVM.transactions, budgetVM.budget)
         }
+    }
+
+    // Prepare chart data and insights outside the LazyColumn DSL
+    val insights = remember(transactionVM.transactions, budgetVM.budget, investmentVM.totalInvested) {
+        SmartInsights.generate(
+            transactionVM.transactions,
+            budgetVM.budget,
+            investmentVM.totalInvested
+        )
+    }
+    val categoryData = remember(transactionVM.categorySummary) {
+        AnalyticsUtils.categoryChartData(transactionVM.transactions)
+    }
+    val monthlyData = remember(transactionVM.transactions) {
+        AnalyticsUtils.monthlyChartData(transactionVM.transactions)
     }
 
     Scaffold(
@@ -167,29 +184,16 @@ fun DashboardScreen(navController: NavController) {
                 }
 
                 // ── Smart Insights ──────────────────────────────────────────
-                val insights = remember(transactionVM.transactions, budgetVM.budget, investmentVM.totalInvested) {
-                    SmartInsights.generate(
-                        transactionVM.transactions,
-                        budgetVM.budget,
-                        investmentVM.totalInvested
-                    )
-                }
                 if (insights.isNotEmpty()) {
                     item { SmartInsightsCard(insights) }
                 }
 
                 // ── Category Pie Chart ───────────────────────────────────────
-                val categoryData = remember(transactionVM.categorySummary) {
-                    AnalyticsUtils.categoryChartData(transactionVM.transactions)
-                }
                 if (categoryData.isNotEmpty()) {
                     item { CategoryPieChartCard(categoryData) }
                 }
 
                 // ── Monthly Bar Chart ────────────────────────────────────────
-                val monthlyData = remember(transactionVM.transactions) {
-                    AnalyticsUtils.monthlyChartData(transactionVM.transactions)
-                }
                 if (monthlyData.any { it.amount > 0f }) {
                     item { MonthlyBarChartCard(monthlyData) }
                 }
